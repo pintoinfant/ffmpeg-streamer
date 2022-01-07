@@ -11,10 +11,15 @@ bot.help((ctx) => ctx.reply('This is a Video Streamer Bot based on FFMPEG'))
 bot.command('stream', async (ctx) => {
     if (ctx.message.from.id == ownerID) {
         let link = ctx.message.text.split(" ")[1]
-        let uniqueId = uuidv4()
-        await ctx.reply(`Your video is now being Streamed to ${baseUrl}${uniqueId}`)
-        console.log("Video Streaming")
-        shell.exec(`ffmpeg -re -i "${link}" -c:v libx264 -preset veryfast -tune zerolatency -c:a aac -ar 44100 -f flv ${baseUrl}${uniqueId}`, { async: true })
+        let ffmpeg_err = shell.exec("ffmpeg -version", { silent: true }).stderr.trim()
+        console.log(ffmpeg_err)
+        if (ffmpeg_err !== "") {
+            console.log("FFMPEG Not Installed")
+        } else {
+            let uniqueId = uuidv4()
+            await ctx.reply(`Your video is now being Streamed to ${baseUrl}${uniqueId}`)
+            shell.exec(`ffmpeg -re -i "${link}" -c:v libx264 -preset veryfast -tune zerolatency -c:a aac -ar 44100 -f flv ${baseUrl}${uniqueId}`, { async: true })
+        }
     }
 })
 bot.launch()
